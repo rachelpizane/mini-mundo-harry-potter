@@ -23,3 +23,11 @@ test {
 application {
     mainClass = 'edu.rachel.Main'
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+tasks.named('run') {
+    standardInput = System.in
+}
