@@ -1,14 +1,22 @@
 package edu.rachel.view;
 
 import edu.rachel.constant.TerminalConstants;
+import edu.rachel.controller.BruxoController;
+import edu.rachel.dto.AppResponse;
+import edu.rachel.dto.BruxoRequestDTO;
+import edu.rachel.dto.BruxoResponseDTO;
+import edu.rachel.enums.AppStatusEnum;
+import edu.rachel.enums.CasaBruxoEnum;
 
 import java.util.Scanner;
 
 public class BruxoTerminal {
     Scanner scanner;
+    BruxoController controller;
 
-    public BruxoTerminal(Scanner scanner){
+    public BruxoTerminal(Scanner scanner, BruxoController controller){
         this.scanner = scanner;
+        this.controller = controller;
     }
 
     public void iniciar(){
@@ -26,18 +34,42 @@ public class BruxoTerminal {
 
             switch (opcao) {
                 case "1":
-                    // TODO: Implementar cadastro
+                    exibirCadastroBruxo();
+                    break;
                 case "2":
                     // TODO: Implementar listagem
                 case "3":
-                    sair();
                     iniciado = false;
+                    sair();
                     break;
                 default:
-                    System.out.println(
-                            TerminalConstants.ANSI_RED + "Opcao invalida. Tente novamente\n" + TerminalConstants.ANSI_RESET);
+                    System.out.println(TerminalConstants.OPCAO_INVALIDA);
             }
         }
+    }
+
+    private void exibirCadastroBruxo() {
+        exibirCabecalho(TerminalConstants.TITULO_CADASTRO);
+
+        System.out.print(TerminalConstants.CADASTRO_NOME);
+        String nomeBruxo = scanner.nextLine();
+
+        CasaBruxoEnum casaBruxo = definirCasaBruxo();
+
+        BruxoRequestDTO request = new BruxoRequestDTO(nomeBruxo, casaBruxo);
+        cadastrarBruxo(request);
+    }
+
+    public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
+        AppResponse response = controller.criarBruxo(bruxoRequest);
+
+        if(response.status().equals(AppStatusEnum.ERRO)) {
+            exibirFalha(response);
+            return;
+        }
+
+        BruxoResponseDTO bruxoSalvo = (BruxoResponseDTO) response.resposta();
+        exibirCadastroSucesso(bruxoSalvo);
     }
 
     private void sair(){
@@ -57,7 +89,7 @@ public class BruxoTerminal {
     }
 
     private void exibirCabecalho(String titulo){
-        String cabecalho = String.format(
+        String cabecalho = String.format("\n" +
                 """
                 ------------------------------------------------
                 %s
@@ -83,5 +115,56 @@ public class BruxoTerminal {
         System.out.print(TerminalConstants.MENU_PRINCIPAL_DESCRICAO);
 
         return scanner.nextLine();
+    }
+
+    private CasaBruxoEnum definirCasaBruxo(){
+        while (true) {
+            String opcao = escolherOpcaoCasaBruxo();
+
+            switch (opcao) {
+                case "1":
+                    return CasaBruxoEnum.GRIFINORIA;
+                case "2":
+                    return CasaBruxoEnum.SONSERINA;
+                default:
+                    System.out.println(TerminalConstants.OPCAO_INVALIDA);
+            }
+
+        }
+    }
+
+    private String escolherOpcaoCasaBruxo(){
+        String opcoes = String.format(
+                """
+                1. %s
+                2. %s
+                """,
+                TerminalConstants.CADASTRO_CASA_OPCAO_GRIFINORIA,
+                TerminalConstants.CADASTRO_CASA_OPCAO_SONSERINA
+        );
+
+        System.out.println(TerminalConstants.CADASTRO_CASA_DESCRICAO);
+        System.out.print(opcoes);
+        System.out.print(TerminalConstants.CADASTRO_CASA);
+
+        return scanner.nextLine();
+    }
+
+    public void exibirCadastroSucesso(BruxoResponseDTO bruxoSalvo) {
+        String dadosBruxo = String.format(TerminalConstants.CADASTRO_DETALHES,
+                bruxoSalvo.id(),
+                bruxoSalvo.nome(),
+                bruxoSalvo.casa(),
+                bruxoSalvo.tipo()
+        );
+
+        exibirCabecalho(TerminalConstants.CADASTRO_CONCLUIDO);
+        System.out.print(dadosBruxo);
+    }
+
+    public void exibirFalha(AppResponse response){
+        if(response.status().equals(AppStatusEnum.ERRO)) {
+            System.out.println(TerminalConstants.ANSI_RED + "[FALHA] " + response.resposta() + TerminalConstants.ANSI_RESET);
+        }
     }
 }
