@@ -2,9 +2,10 @@ package edu.rachel.controller;
 
 import edu.rachel.dto.AppResponse;
 import edu.rachel.dto.BruxoRequestDTO;
+import edu.rachel.dto.BruxoResponseDTO;
 
 public interface BruxoController {
-    AppResponse criarBruxo(BruxoRequestDTO bruxoRequest);
+    AppResponse<BruxoResponseDTO> criarBruxo(BruxoRequestDTO bruxoRequest);
 
-    AppResponse buscarDetalhesBruxo(Long id);
+    AppResponse<String> buscarDetalhesBruxo(Long id);
 }

@@ -72,20 +72,20 @@ public class BruxoTerminal {
     }
 
     public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
-        AppResponse response = controller.criarBruxo(bruxoRequest);
+        AppResponse<BruxoResponseDTO> response = controller.criarBruxo(bruxoRequest);
 
         if(exibirFalha(response)) return;
 
-        BruxoResponseDTO bruxoSalvo = (BruxoResponseDTO) response.resposta();
+        BruxoResponseDTO bruxoSalvo = response.resposta();
         exibirCadastroSucesso(bruxoSalvo);
     }
 
     public void buscarDetalhesBruxo(Long id){
-        AppResponse response = controller.buscarDetalhesBruxo(id);
+        AppResponse<String> response = controller.buscarDetalhesBruxo(id);
 
         if(exibirFalha(response)) return;
 
-        String detalhes = (String) response.resposta();
+        String detalhes = response.resposta();
 
         exibirCabecalho(TerminalConstants.TITULO_DETALHES);
         System.out.print(detalhes);
@@ -198,9 +198,9 @@ public class BruxoTerminal {
         System.out.print(dadosBruxo);
     }
 
-    public boolean exibirFalha(AppResponse response){
+    public boolean exibirFalha(AppResponse<?> response){
         if(response.status().equals(AppStatusEnum.ERRO)) {
-            System.out.println(alertarTexto("[FALHA] " + response.resposta()));
+            System.out.println(alertarTexto("[FALHA] " + response.messageErro()));
             return true;
         }
 

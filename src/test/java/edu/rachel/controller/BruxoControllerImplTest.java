@@ -15,8 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +40,7 @@ class BruxoControllerImplTest {
 
             assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
             assertTrue(appResponse.resposta() instanceof BruxoResponseDTO);
+            assertNull(appResponse.messageErro());
         }
 
         @Test
@@ -54,6 +54,7 @@ class BruxoControllerImplTest {
 
             assertEquals(AppStatusEnum.ERRO, appResponse.status());
             assertEquals(mensagemErro, appResponse.resposta());
+            assertNull(appResponse.resposta());
         }
     }
 
@@ -70,6 +71,7 @@ class BruxoControllerImplTest {
 
             assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
             assertEquals(detalhes, appResponse.resposta());
+            assertNull(appResponse.messageErro());
         }
 
         @Test
@@ -80,9 +82,8 @@ class BruxoControllerImplTest {
             when(service.buscarDetalhesBruxo(id)).thenThrow(new NotFoundException(mensagemErro));
 
             AppResponse appResponse = controller.buscarDetalhesBruxo(id);
-
-            assertEquals(AppStatusEnum.ERRO, appResponse.status());
-            assertEquals(mensagemErro, appResponse.resposta());
+            assertEquals(mensagemErro, appResponse.messageErro());
+            assertNull(appResponse.resposta());
         }
     }
 }
