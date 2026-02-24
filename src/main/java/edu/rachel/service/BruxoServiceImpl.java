@@ -28,6 +28,12 @@ public class BruxoServiceImpl implements BruxoService {
         return mapper.toDto(bruxoSalvo);
     }
 
+    @Override
+    public String buscarDetalhesBruxo(Long id){
+        Bruxo bruxo = repository.buscarPorId(id);
+        return bruxo.mostrarInformacoes();
+    }
+
     private void validar(BruxoRequestDTO bruxoRequest) {
         if(Objects.isNull(bruxoRequest)) {
             throw new IllegalArgumentException("A requisicao nao pode ser nula");

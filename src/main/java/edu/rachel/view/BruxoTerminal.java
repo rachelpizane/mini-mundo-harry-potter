@@ -8,6 +8,7 @@ import edu.rachel.dto.BruxoResponseDTO;
 import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.enums.CasaBruxoEnum;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 public class BruxoTerminal {
@@ -37,13 +38,16 @@ public class BruxoTerminal {
                     exibirCadastroBruxo();
                     break;
                 case "2":
-                    // TODO: Implementar listagem
+                    exibirDetalhesBruxo();
+                    break;
                 case "3":
+                    // TODO: Implementar listagem
+                case "4":
                     iniciado = false;
                     sair();
                     break;
                 default:
-                    System.out.println(TerminalConstants.OPCAO_INVALIDA);
+                    System.out.println(alertarTexto(TerminalConstants.OPCAO_INVALIDA));
             }
         }
     }
@@ -60,16 +64,31 @@ public class BruxoTerminal {
         cadastrarBruxo(request);
     }
 
+    public void exibirDetalhesBruxo(){
+        Long id = capturarId();
+        if (Objects.isNull(id)) return;
+
+        buscarDetalhesBruxo(id);
+    }
+
     public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
         AppResponse response = controller.criarBruxo(bruxoRequest);
 
-        if(response.status().equals(AppStatusEnum.ERRO)) {
-            exibirFalha(response);
-            return;
-        }
+        if(exibirFalha(response)) return;
 
         BruxoResponseDTO bruxoSalvo = (BruxoResponseDTO) response.resposta();
         exibirCadastroSucesso(bruxoSalvo);
+    }
+
+    public void buscarDetalhesBruxo(Long id){
+        AppResponse response = controller.buscarDetalhesBruxo(id);
+
+        if(exibirFalha(response)) return;
+
+        String detalhes = (String) response.resposta();
+
+        exibirCabecalho(TerminalConstants.TITULO_DETALHES);
+        System.out.print(detalhes);
     }
 
     private void sair(){
@@ -80,9 +99,9 @@ public class BruxoTerminal {
     private void exibirCabecalhoPrincipal(){
         String cabecalhoPrincipal =
                 """
-                ================================================
-                *_*_*_*_ Mini Mundo Harry Potter _*_*_*_*
-                ================================================
+                =================================================
+                *_*_*_*_*_*_ Mini Mundo Harry Potter _*_*_*_*_*_*
+                =================================================
                 """;
 
         System.out.println(cabecalhoPrincipal);
@@ -99,15 +118,32 @@ public class BruxoTerminal {
         System.out.print(cabecalho);
     }
 
+    public Long capturarId(){
+        System.out.print(TerminalConstants.PERGUNTA_DETALHES_ID);
+        String idStr = scanner.nextLine();
+
+        Long id;
+        try {
+            id = Long.parseLong(idStr);
+        } catch (NumberFormatException e) {
+            System.out.println(alertarTexto(TerminalConstants.ID_INVALIDO));
+            return null;
+        }
+
+        return id;
+    }
+
     private String escolherOpcaoMenuPrincipal(){
         String opcoes = String.format(
                 """
                 1. %s
                 2. %s
                 3. %s
+                4. %s
                 
                 """,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_CADASTRAR,
+                TerminalConstants.MENU_PRINCIPAL_OPCAO_DETALHES,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_LISTAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_SAIR);
 
@@ -127,7 +163,7 @@ public class BruxoTerminal {
                 case "2":
                     return CasaBruxoEnum.SONSERINA;
                 default:
-                    System.out.println(TerminalConstants.OPCAO_INVALIDA);
+                    System.out.println(alertarTexto(TerminalConstants.OPCAO_INVALIDA));
             }
 
         }
@@ -158,13 +194,20 @@ public class BruxoTerminal {
                 bruxoSalvo.tipo()
         );
 
-        exibirCabecalho(TerminalConstants.CADASTRO_CONCLUIDO);
+        exibirCabecalho(TerminalConstants.TITULO_CADASTRO_CONCLUIDO);
         System.out.print(dadosBruxo);
     }
 
-    public void exibirFalha(AppResponse response){
+    public boolean exibirFalha(AppResponse response){
         if(response.status().equals(AppStatusEnum.ERRO)) {
-            System.out.println(TerminalConstants.ANSI_RED + "[FALHA] " + response.resposta() + TerminalConstants.ANSI_RESET);
+            System.out.println(alertarTexto("[FALHA] " + response.resposta()));
+            return true;
         }
+
+        return false;
+    }
+
+    public String alertarTexto(String texto) {
+        return TerminalConstants.ANSI_RED + texto + TerminalConstants.ANSI_RESET;
     }
 }

@@ -4,10 +4,12 @@ import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
+import edu.rachel.exception.NotFoundException;
 import edu.rachel.mapper.BruxoMapperImpl;
 import edu.rachel.model.Bruxo;
 import edu.rachel.model.BruxoGrifinoria;
 import edu.rachel.repository.BruxoRepository;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,54 +36,84 @@ class BruxoServiceImplTest {
     @InjectMocks
     BruxoServiceImpl service;
 
-    @Test
-    void quandoRequestValidoDeveSalvarBruxoCorretamente(){
-        BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
-        Bruxo bruxo = new BruxoGrifinoria(request.nome());
-        bruxo.setId(1L);
+    @Nested
+    class CadastroBruxoTests {
+        @Test
+        void deveSalvarBruxoCorretamenteQuandoRequestValido() {
+            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
+            Bruxo bruxo = new BruxoGrifinoria(request.nome());
+            bruxo.setId(1L);
 
-        when(repository.save(any(Bruxo.class))).thenReturn(bruxo);
+            when(repository.save(any(Bruxo.class))).thenReturn(bruxo);
 
-        BruxoResponseDTO response = service.criarBruxo(request);
+            BruxoResponseDTO response = service.criarBruxo(request);
 
-        assertEquals(bruxo.getId(), response.id());
-        assertEquals(request.nome(), response.nome());
-        assertEquals(request.casa().getNome(), response.casa());
-        assertEquals(TipoMagiaEnum.COMUM.getNome(), response.tipo());
+            assertEquals(bruxo.getId(), response.id());
+            assertEquals(request.nome(), response.nome());
+            assertEquals(request.casa().getNome(), response.casa());
+            assertEquals(TipoMagiaEnum.COMUM.getNome(), response.tipo());
 
-        verify(repository, times(1)).save(any(Bruxo.class));
+            verify(repository, times(1)).save(any(Bruxo.class));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void deveFalharAoCadastrarBruxoQuandoRequestNulo(BruxoRequestDTO request) {
+            assertThrows(IllegalArgumentException.class, () -> {
+                service.criarBruxo(request);
+            });
+
+            verify(repository, never()).save(any(Bruxo.class));
+        }
+
+        @ParameterizedTest
+        @EmptySource
+        void deveFalharAoCadastrarBruxoQuandoNomeInvalido(String nome) {
+            BruxoRequestDTO request = new BruxoRequestDTO(nome, CasaBruxoEnum.GRIFINORIA);
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                service.criarBruxo(request);
+            });
+
+            verify(repository, never()).save(any(Bruxo.class));
+        }
+
+        @Test
+        void deveFalharAoCadastrarBruxoQuandoCasaBruxoForNula() {
+            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", null);
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                service.criarBruxo(request);
+            });
+
+            verify(repository, never()).save(any(Bruxo.class));
+        }
     }
 
-    @ParameterizedTest
-    @NullSource
-    void quandoRequestNuloDeveFalharAoCadastrarBruxo(BruxoRequestDTO request){
-        assertThrows(IllegalArgumentException.class, () -> {
-            service.criarBruxo(request);
-        });
+    @Nested
+    class DetalhesBruxoTests {
+        @Test
+        void deveBuscarDetalhesCorretamenteQuandoIdValido(){
+            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
+            bruxo.setId(1L);
 
-        verify(repository, never()).save(any(Bruxo.class));
-    }
+            when(repository.buscarPorId(bruxo.getId())).thenReturn(bruxo);
 
-    @ParameterizedTest
-    @EmptySource
-    void quandoNomeInvalidoDeveFalharAoCadastrarBruxo(String nome){
-        BruxoRequestDTO request = new BruxoRequestDTO(nome, CasaBruxoEnum.GRIFINORIA);
+            String detalhes = service.buscarDetalhesBruxo(bruxo.getId());
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            service.criarBruxo(request);
-        });
+            assertNotNull(detalhes);
+        }
 
-        verify(repository, never()).save(any(Bruxo.class));
-    }
+        @Test
+        void deveFalharAoBuscarDetalhesQuandoIdInvalido(){
+            Long id = 1L;
 
-    @Test
-    void quandoCasaBruxoNulaDeveFalharAoCadastrarBruxo(){
-        BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", null);
+            when(repository.buscarPorId(id)).thenThrow(new NotFoundException("Bruxo nao encontrado"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            service.criarBruxo(request);
-        });
+            assertThrows(NotFoundException.class, () -> {
+                service.buscarDetalhesBruxo(id);
+            });
 
-        verify(repository, never()).save(any(Bruxo.class));
+        }
     }
 }

@@ -9,23 +9,21 @@ public abstract class Bruxo {
     private CasaBruxoEnum casa;
     private TipoMagiaEnum tipoMagia;
 
-    public Bruxo(String nome, CasaBruxoEnum casa, TipoMagiaEnum tipoMagia) {
+    protected Bruxo(String nome, CasaBruxoEnum casa, TipoMagiaEnum tipoMagia) {
         this.nome = nome;
         this.casa = casa;
         this.tipoMagia = tipoMagia;
     }
 
     public String mostrarInformacoes() {
-        String informacoes = String.format(
+        return String.format(
                 """
-                Id: %d
-                Nome: %s
-                Casa: %s
-                Tipo Magia: %s
+                ID: %d
+                NOME: %s
+                CASA: %s
+                TIPO MAGIA: %s
                 """, this.id, this.nome, this.casa.getNome(), this.tipoMagia.getNome()
         );
-
-        return informacoes;
     }
 
     public Long getId(){

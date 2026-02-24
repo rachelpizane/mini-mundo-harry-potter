@@ -6,7 +6,9 @@ import edu.rachel.dto.BruxoResponseDTO;
 import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
+import edu.rachel.exception.NotFoundException;
 import edu.rachel.service.BruxoService;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,30 +27,62 @@ class BruxoControllerImplTest {
     @InjectMocks
     BruxoControllerImpl controller;
 
-    @Test
-    void quandoRequestValidoDeveCadastrarBruxoComSucesso(){
-        BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
-        BruxoResponseDTO response = new BruxoResponseDTO(
-                1L, request.nome(), request.casa().getNome(), TipoMagiaEnum.COMUM.getNome());
+    @Nested
+    class CadastroBruxoTests {
+        @Test
+        void deveCadastrarBruxoComSucessoQuandoRequestValido() {
+            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
+            BruxoResponseDTO response = new BruxoResponseDTO(
+                    1L, request.nome(), request.casa().getNome(), TipoMagiaEnum.COMUM.getNome());
 
-        when(service.criarBruxo(request)).thenReturn(response);
+            when(service.criarBruxo(request)).thenReturn(response);
 
-        AppResponse appResponse = controller.criarBruxo(request);
+            AppResponse appResponse = controller.criarBruxo(request);
 
-        assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
-        assertTrue(appResponse.resposta() instanceof BruxoResponseDTO);
+            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            assertTrue(appResponse.resposta() instanceof BruxoResponseDTO);
+        }
+
+        @Test
+        void deveFalharCadastroQuandoRequestInvalido() {
+            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
+            String mensagemErro = "Request inválido";
+
+            when(service.criarBruxo(request)).thenThrow(new IllegalArgumentException(mensagemErro));
+
+            AppResponse appResponse = controller.criarBruxo(request);
+
+            assertEquals(AppStatusEnum.ERRO, appResponse.status());
+            assertEquals(mensagemErro, appResponse.resposta());
+        }
     }
 
-    @Test
-    void quandoRequestInvalidoDeveFalharCadastro(){
-        BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
-        String mensagemErro = "Request inválido";
+    @Nested
+    class DetalhesBruxoTests {
+        @Test
+        void deveBuscarDetalhesBruxoValido() {
+            Long id = 1L;
+            String detalhes = "Detalhes do Bruxo";
 
-        when(service.criarBruxo(request)).thenThrow(new IllegalArgumentException(mensagemErro));
+            when(service.buscarDetalhesBruxo(id)).thenReturn(detalhes);
 
-        AppResponse appResponse = controller.criarBruxo(request);
+            AppResponse appResponse = controller.buscarDetalhesBruxo(id);
 
-        assertEquals(AppStatusEnum.ERRO, appResponse.status());
-        assertEquals(mensagemErro, appResponse.resposta());
+            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            assertEquals(detalhes, appResponse.resposta());
+        }
+
+        @Test
+        void deveFalharBuscaQuandoIdInvalido() {
+            Long id = 9L;
+            String mensagemErro = "Bruxo nao encontrado";
+
+            when(service.buscarDetalhesBruxo(id)).thenThrow(new NotFoundException(mensagemErro));
+
+            AppResponse appResponse = controller.buscarDetalhesBruxo(id);
+
+            assertEquals(AppStatusEnum.ERRO, appResponse.status());
+            assertEquals(mensagemErro, appResponse.resposta());
+        }
     }
 }

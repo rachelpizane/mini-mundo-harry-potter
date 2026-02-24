@@ -17,10 +17,21 @@ public class BruxoControllerImpl implements BruxoController {
     public AppResponse criarBruxo(BruxoRequestDTO bruxoRequest) {
         try {
             BruxoResponseDTO response = service.criarBruxo(bruxoRequest);
-            return new AppResponse(AppStatusEnum.SUCESSO, response);
+            return new AppResponse<BruxoResponseDTO>(AppStatusEnum.SUCESSO, response);
 
         } catch (Exception e) {
-            return new AppResponse(AppStatusEnum.ERRO, e.getMessage());
+            return new AppResponse<String>(AppStatusEnum.ERRO, e.getMessage());
+        }
+    }
+
+    @Override
+    public AppResponse buscarDetalhesBruxo(Long id) {
+        try {
+            String detalhes = service.buscarDetalhesBruxo(id);
+            return new AppResponse<String>(AppStatusEnum.SUCESSO, detalhes);
+
+        } catch (Exception e) {
+            return new AppResponse<String>(AppStatusEnum.ERRO, e.getMessage());
         }
     }
 }

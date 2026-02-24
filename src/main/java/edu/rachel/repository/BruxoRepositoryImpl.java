@@ -1,9 +1,11 @@
 package edu.rachel.repository;
 
+import edu.rachel.exception.NotFoundException;
 import edu.rachel.model.Bruxo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class BruxoRepositoryImpl implements BruxoRepository {
@@ -16,6 +18,17 @@ public class BruxoRepositoryImpl implements BruxoRepository {
         bruxos.put(bruxo.getId(), bruxo);
 
         return bruxos.get(bruxo.getId());
+    }
+
+    @Override
+    public Bruxo buscarPorId(Long id) {
+        Bruxo bruxo = bruxos.get(id);
+
+        if(Objects.isNull(bruxo)) {
+            throw new NotFoundException("Bruxo nao encontrado");
+        }
+
+        return bruxo;
     }
 
     public void clear() {
