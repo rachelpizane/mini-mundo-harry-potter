@@ -9,6 +9,7 @@ import edu.rachel.repository.BruxoRepositoryImpl;
 import edu.rachel.service.BruxoService;
 import edu.rachel.service.BruxoServiceImpl;
 import edu.rachel.view.BruxoTerminal;
+import edu.rachel.view.BruxoTerminalImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -22,8 +23,8 @@ public class Main {
         BruxoService service = new BruxoServiceImpl(mapper, repository);
         BruxoController controller = new BruxoControllerImpl(service);
 
-        BruxoTerminal terminal = new BruxoTerminal(scanner, controller);
+        BruxoTerminal terminal = new BruxoTerminalImpl(scanner, controller);
 
-        terminal.iniciar();
+        terminal.executar();
     }
 }
