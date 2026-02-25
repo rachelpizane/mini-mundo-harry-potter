@@ -3,7 +3,7 @@ package edu.rachel.model;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
 
-public abstract class Bruxo {
+public abstract class Bruxo implements Magia {
     private Long id;
     private String nome;
     private CasaBruxoEnum casa;

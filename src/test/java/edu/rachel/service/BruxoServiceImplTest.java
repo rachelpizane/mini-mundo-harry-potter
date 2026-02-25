@@ -113,7 +113,32 @@ class BruxoServiceImplTest {
             assertThrows(NotFoundException.class, () -> {
                 service.buscarDetalhesBruxo(id);
             });
+        }
+    }
 
+    @Nested
+    class RealizarMagiaTests {
+        @Test
+        void deveRealizarMagiaCorretamenteQuandoIdValido(){
+            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
+            bruxo.setId(1L);
+
+            when(repository.buscarPorId(bruxo.getId())).thenReturn(bruxo);
+
+            String magia = service.realizarMagia(bruxo.getId());
+
+            assertNotNull(magia);
+        }
+
+        @Test
+        void deveFalharAoRealizarMagiaQuandoIdInvalido(){
+            Long id = 1L;
+
+            when(repository.buscarPorId(id)).thenThrow(new NotFoundException("Bruxo nao encontrado"));
+
+            assertThrows(NotFoundException.class, () -> {
+                service.realizarMagia(id);
+            });
         }
     }
 }

@@ -86,4 +86,33 @@ class BruxoControllerImplTest {
             assertNull(appResponse.resposta());
         }
     }
+
+    @Nested
+    class RealizarMagiaTests {
+        @Test
+        void deveRealizarMagiaQuandoBruxoValido() {
+            Long id = 1L;
+            String magia = "Bruxo lancou um feitico";
+
+            when(service.realizarMagia(id)).thenReturn(magia);
+
+            AppResponse appResponse = controller.realizarMagia(id);
+
+            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            assertEquals(magia, appResponse.resposta());
+            assertNull(appResponse.messageErro());
+        }
+
+        @Test
+        void deveFalharMagiaQuandoIdInvalido() {
+            Long id = 9L;
+            String mensagemErro = "Bruxo nao encontrado";
+
+            when(service.realizarMagia(id)).thenThrow(new NotFoundException(mensagemErro));
+
+            AppResponse appResponse = controller.realizarMagia(id);
+            assertEquals(mensagemErro, appResponse.messageErro());
+            assertNull(appResponse.resposta());
+        }
+    }
 }

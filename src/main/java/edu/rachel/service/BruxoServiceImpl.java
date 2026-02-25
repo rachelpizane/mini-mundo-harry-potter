@@ -34,6 +34,12 @@ public class BruxoServiceImpl implements BruxoService {
         return bruxo.mostrarInformacoes();
     }
 
+    @Override
+    public String realizarMagia(Long id){
+        Bruxo bruxo = repository.buscarPorId(id);
+        return bruxo.lancarFeitico();
+    }
+
     private void validar(BruxoRequestDTO bruxoRequest) {
         if(Objects.isNull(bruxoRequest)) {
             throw new IllegalArgumentException("A requisicao nao pode ser nula");

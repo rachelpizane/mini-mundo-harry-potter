@@ -8,4 +8,6 @@ public interface BruxoController {
     AppResponse<BruxoResponseDTO> criarBruxo(BruxoRequestDTO bruxoRequest);
 
     AppResponse<String> buscarDetalhesBruxo(Long id);
+
+    AppResponse<String> realizarMagia(Long id);
 }

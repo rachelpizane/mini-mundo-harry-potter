@@ -34,4 +34,15 @@ public class BruxoControllerImpl implements BruxoController {
             return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
         }
     }
+
+    @Override
+    public AppResponse<String> realizarMagia(Long id) {
+        try {
+            String magia = service.realizarMagia(id);
+            return new AppResponse<>(AppStatusEnum.SUCESSO, magia, null);
+
+        } catch (Exception e) {
+            return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
+        }
+    }
 }

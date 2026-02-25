@@ -41,8 +41,11 @@ public class BruxoTerminal {
                     exibirDetalhesBruxo();
                     break;
                 case "3":
-                    // TODO: Implementar listagem
+                    exibirLancamentoFeitico();
+                    break;
                 case "4":
+                    // TODO: Implementar listagem
+                case "5":
                     iniciado = false;
                     sair();
                     break;
@@ -71,6 +74,13 @@ public class BruxoTerminal {
         buscarDetalhesBruxo(id);
     }
 
+    public void exibirLancamentoFeitico(){
+        Long id = capturarId();
+        if (Objects.isNull(id)) return;
+
+        realizarFeitico(id);
+    }
+
     public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
         AppResponse<BruxoResponseDTO> response = controller.criarBruxo(bruxoRequest);
 
@@ -89,6 +99,17 @@ public class BruxoTerminal {
 
         exibirCabecalho(TerminalConstants.TITULO_DETALHES);
         System.out.print(detalhes);
+    }
+
+    public void realizarFeitico(Long id){
+        AppResponse<String> response = controller.realizarMagia(id);
+
+        if(exibirFalha(response)) return;
+
+        String feitico = response.resposta();
+
+        exibirCabecalho(TerminalConstants.TITULO_FEITICO);
+        System.out.println(feitico);
     }
 
     private void sair(){
@@ -140,10 +161,12 @@ public class BruxoTerminal {
                 2. %s
                 3. %s
                 4. %s
+                5. %s
                 
                 """,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_CADASTRAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_DETALHES,
+                TerminalConstants.MENU_PRINCIPAL_OPCAO_FEITICO,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_LISTAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_SAIR);
 

@@ -7,4 +7,6 @@ public interface BruxoService {
     BruxoResponseDTO criarBruxo(BruxoRequestDTO bruxoRequest);
 
     String buscarDetalhesBruxo(Long id);
+
+    String realizarMagia(Long id);
 }
