@@ -5,11 +5,14 @@ import edu.rachel.controller.BruxoController;
 import edu.rachel.dto.AppResponse;
 import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
+import edu.rachel.dto.BruxoResumeDTO;
 import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.enums.CasaBruxoEnum;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class BruxoTerminal {
     Scanner scanner;
@@ -35,16 +38,17 @@ public class BruxoTerminal {
 
             switch (opcao) {
                 case "1":
-                    exibirCadastroBruxo();
+                    exibirBruxos();
                     break;
                 case "2":
-                    exibirDetalhesBruxo();
+                    exibirCadastroBruxo();
                     break;
                 case "3":
-                    exibirLancamentoFeitico();
+                    exibirDetalhesBruxo();
                     break;
                 case "4":
-                    // TODO: Implementar listagem
+                    exibirLancamentoFeitico();
+                    break;
                 case "5":
                     iniciado = false;
                     sair();
@@ -53,6 +57,11 @@ public class BruxoTerminal {
                     System.out.println(alertarTexto(TerminalConstants.OPCAO_INVALIDA));
             }
         }
+    }
+
+    private void exibirBruxos(){
+        exibirCabecalho(TerminalConstants.TITULO_BRUXOS);
+        buscarBruxos();
     }
 
     private void exibirCadastroBruxo() {
@@ -79,6 +88,24 @@ public class BruxoTerminal {
         if (Objects.isNull(id)) return;
 
         realizarFeitico(id);
+    }
+
+    public void buscarBruxos(){
+        AppResponse<List<BruxoResumeDTO>> response = controller.buscarBruxos();
+
+        if(exibirFalha(response)) return;
+
+        List<BruxoResumeDTO> bruxos = response.resposta();
+
+        if(bruxos.isEmpty()){
+            System.out.println(TerminalConstants.SEM_BRUXOS);
+        }
+
+        String listaBruxos = bruxos.stream()
+                .map(bruxo -> String.format("ID: %d - NOME: %s", bruxo.id(), bruxo.nome()))
+                .collect(Collectors.joining(System.lineSeparator()));
+
+        System.out.println(listaBruxos);
     }
 
     public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
@@ -164,10 +191,10 @@ public class BruxoTerminal {
                 5. %s
                 
                 """,
+                TerminalConstants.MENU_PRINCIPAL_OPCAO_LISTAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_CADASTRAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_DETALHES,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_FEITICO,
-                TerminalConstants.MENU_PRINCIPAL_OPCAO_LISTAR,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_SAIR);
 
         System.out.print(opcoes);

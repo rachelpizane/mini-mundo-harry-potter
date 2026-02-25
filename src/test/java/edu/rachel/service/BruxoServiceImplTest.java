@@ -2,6 +2,7 @@ package edu.rachel.service;
 
 import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
+import edu.rachel.dto.BruxoResumeDTO;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
 import edu.rachel.exception.NotFoundException;
@@ -19,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -139,6 +142,30 @@ class BruxoServiceImplTest {
             assertThrows(NotFoundException.class, () -> {
                 service.realizarMagia(id);
             });
+        }
+    }
+
+    @Nested
+    class BuscarBruxosTests {
+        @Test
+        void deveBuscarBruxosCorretamente(){
+            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
+            bruxo.setId(1L);
+
+            when(repository.buscarTodos()).thenReturn(List.of(bruxo));
+
+            List<BruxoResumeDTO> bruxos = service.buscarBruxos();
+
+            assertEquals(1, bruxos.size());
+        }
+
+        @Test
+        void deveBuscarBruxosCorretamenteQuandoNaoExistirBruxos(){
+            when(repository.buscarTodos()).thenReturn(List.of());
+
+            List<BruxoResumeDTO> bruxos = service.buscarBruxos();
+
+            assertEquals(0, bruxos.size());
         }
     }
 }

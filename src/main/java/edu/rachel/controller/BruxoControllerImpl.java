@@ -3,8 +3,11 @@ package edu.rachel.controller;
 import edu.rachel.dto.AppResponse;
 import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
+import edu.rachel.dto.BruxoResumeDTO;
 import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.service.BruxoService;
+
+import java.util.List;
 
 public class BruxoControllerImpl implements BruxoController {
     private final BruxoService service;
@@ -40,6 +43,17 @@ public class BruxoControllerImpl implements BruxoController {
         try {
             String magia = service.realizarMagia(id);
             return new AppResponse<>(AppStatusEnum.SUCESSO, magia, null);
+
+        } catch (Exception e) {
+            return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public AppResponse<List<BruxoResumeDTO>> buscarBruxos() {
+        try {
+            List<BruxoResumeDTO> bruxos = service.buscarBruxos();
+            return new AppResponse<>(AppStatusEnum.SUCESSO, bruxos, null);
 
         } catch (Exception e) {
             return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());

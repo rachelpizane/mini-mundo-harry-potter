@@ -10,6 +10,7 @@ public class TerminalConstants {
     public static final String ENCERRAMENTO = "Obrigado(a) pela visita!";
 
     public static final String TITULO_MENU_PRINCIPAL = "Menu Principal";
+    public static final String TITULO_BRUXOS = "Listagem de Bruxos";
     public static final String TITULO_CADASTRO = "Cadastrar Bruxo";
     public static final String TITULO_CADASTRO_CONCLUIDO = "O cadastro foi feito com sucesso!";
     public static final String TITULO_DETALHES = "Detalhes do Bruxo";
@@ -40,6 +41,7 @@ public class TerminalConstants {
 
     public static final String OPCAO_INVALIDA = "Opcao invalida. Tente novamente.\n";
     public static final String ID_INVALIDO = "ID invalido. Tente novamente.";
+    public static final String SEM_BRUXOS = "Nao existe bruxos cadastrados";
 
     private TerminalConstants() {}
 }

@@ -3,6 +3,7 @@ package edu.rachel.controller;
 import edu.rachel.dto.AppResponse;
 import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
+import edu.rachel.dto.BruxoResumeDTO;
 import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -53,7 +56,7 @@ class BruxoControllerImplTest {
             AppResponse appResponse = controller.criarBruxo(request);
 
             assertEquals(AppStatusEnum.ERRO, appResponse.status());
-            assertEquals(mensagemErro, appResponse.resposta());
+            assertEquals(mensagemErro, appResponse.messageErro());
             assertNull(appResponse.resposta());
         }
     }
@@ -113,6 +116,32 @@ class BruxoControllerImplTest {
             AppResponse appResponse = controller.realizarMagia(id);
             assertEquals(mensagemErro, appResponse.messageErro());
             assertNull(appResponse.resposta());
+        }
+    }
+
+    @Nested
+    class BuscarBruxosTests {
+        @Test
+        void deveBuscarBruxosComSucesso(){
+            BruxoResumeDTO bruxo = new BruxoResumeDTO(1L, "Bruxo");
+            when(service.buscarBruxos()).thenReturn(List.of(bruxo));
+
+            AppResponse appResponse = controller.buscarBruxos();
+
+            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            assertEquals(List.of(bruxo), appResponse.resposta());
+            assertNull(appResponse.messageErro());
+        }
+
+        @Test
+        void deveBuscarBruxosComSucessoQuandoListaForVazia(){
+            when(service.buscarBruxos()).thenReturn(List.of());
+
+            AppResponse appResponse = controller.buscarBruxos();
+
+            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            assertEquals(List.of(), appResponse.resposta());
+            assertNull(appResponse.messageErro());
         }
     }
 }

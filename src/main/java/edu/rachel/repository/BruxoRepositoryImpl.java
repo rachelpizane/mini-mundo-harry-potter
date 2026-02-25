@@ -4,6 +4,7 @@ import edu.rachel.exception.NotFoundException;
 import edu.rachel.model.Bruxo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,6 +30,15 @@ public class BruxoRepositoryImpl implements BruxoRepository {
         }
 
         return bruxo;
+    }
+
+    @Override
+    public List<Bruxo> buscarTodos(){
+        if(bruxos.isEmpty()){
+            return List.of();
+        }
+
+        return bruxos.values().stream().toList();
     }
 
     public void clear() {

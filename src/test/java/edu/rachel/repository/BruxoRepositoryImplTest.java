@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +66,24 @@ class BruxoRepositoryImplTest {
             assertThrows(NotFoundException.class, () -> {
                 repository.buscarPorId(1L);
             });
+        }
+    }
+
+    @Nested
+    class BuscarTodosTests {
+        @Test
+        void deveBuscarTodosCorretamente(){
+            Bruxo bruxoGrifinoria = new BruxoGrifinoria("Bruxo");
+            repository.save(bruxoGrifinoria);
+
+            List<Bruxo> bruxos = repository.buscarTodos();
+            assertEquals(1, bruxos.size());
+        }
+
+        @Test
+        void deveRetornarListaVaziaQuandoNaoHaBruxos(){
+            List<Bruxo> bruxos = repository.buscarTodos();
+            assertEquals(0, bruxos.size());
         }
     }
 }
