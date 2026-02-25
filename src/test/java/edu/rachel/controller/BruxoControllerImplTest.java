@@ -41,9 +41,8 @@ class BruxoControllerImplTest {
 
             AppResponse appResponse = controller.criarBruxo(request);
 
-            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            verificarSucesso(appResponse);
             assertTrue(appResponse.resposta() instanceof BruxoResponseDTO);
-            assertNull(appResponse.messageErro());
         }
 
         @Test
@@ -53,11 +52,9 @@ class BruxoControllerImplTest {
 
             when(service.criarBruxo(request)).thenThrow(new IllegalArgumentException(mensagemErro));
 
-            AppResponse appResponse = controller.criarBruxo(request);
+            AppResponse<BruxoResponseDTO> appResponse = controller.criarBruxo(request);
 
-            assertEquals(AppStatusEnum.ERRO, appResponse.status());
-            assertEquals(mensagemErro, appResponse.messageErro());
-            assertNull(appResponse.resposta());
+            verificarFalha(appResponse, mensagemErro);
         }
     }
 
@@ -70,11 +67,10 @@ class BruxoControllerImplTest {
 
             when(service.buscarDetalhesBruxo(id)).thenReturn(detalhes);
 
-            AppResponse appResponse = controller.buscarDetalhesBruxo(id);
+            AppResponse<String> appResponse = controller.buscarDetalhesBruxo(id);
 
-            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            verificarSucesso(appResponse);
             assertEquals(detalhes, appResponse.resposta());
-            assertNull(appResponse.messageErro());
         }
 
         @Test
@@ -84,9 +80,9 @@ class BruxoControllerImplTest {
 
             when(service.buscarDetalhesBruxo(id)).thenThrow(new NotFoundException(mensagemErro));
 
-            AppResponse appResponse = controller.buscarDetalhesBruxo(id);
-            assertEquals(mensagemErro, appResponse.messageErro());
-            assertNull(appResponse.resposta());
+            AppResponse<String> appResponse = controller.buscarDetalhesBruxo(id);
+
+            verificarFalha(appResponse, mensagemErro);
         }
     }
 
@@ -99,11 +95,10 @@ class BruxoControllerImplTest {
 
             when(service.realizarMagia(id)).thenReturn(magia);
 
-            AppResponse appResponse = controller.realizarMagia(id);
+            AppResponse<String> appResponse = controller.realizarMagia(id);
 
-            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+            verificarSucesso(appResponse);
             assertEquals(magia, appResponse.resposta());
-            assertNull(appResponse.messageErro());
         }
 
         @Test
@@ -113,9 +108,9 @@ class BruxoControllerImplTest {
 
             when(service.realizarMagia(id)).thenThrow(new NotFoundException(mensagemErro));
 
-            AppResponse appResponse = controller.realizarMagia(id);
-            assertEquals(mensagemErro, appResponse.messageErro());
-            assertNull(appResponse.resposta());
+            AppResponse<String> appResponse = controller.realizarMagia(id);
+
+            verificarFalha(appResponse, mensagemErro);
         }
     }
 
@@ -126,22 +121,30 @@ class BruxoControllerImplTest {
             BruxoResumeDTO bruxo = new BruxoResumeDTO(1L, "Bruxo");
             when(service.buscarBruxos()).thenReturn(List.of(bruxo));
 
-            AppResponse appResponse = controller.buscarBruxos();
+            AppResponse<List<BruxoResumeDTO>> appResponse = controller.buscarBruxos();
 
-            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
-            assertEquals(List.of(bruxo), appResponse.resposta());
-            assertNull(appResponse.messageErro());
+            verificarSucesso(appResponse);
         }
 
         @Test
         void deveBuscarBruxosComSucessoQuandoListaForVazia(){
             when(service.buscarBruxos()).thenReturn(List.of());
 
-            AppResponse appResponse = controller.buscarBruxos();
+            AppResponse<List<BruxoResumeDTO>> appResponse = controller.buscarBruxos();
 
-            assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
-            assertEquals(List.of(), appResponse.resposta());
-            assertNull(appResponse.messageErro());
+            verificarSucesso(appResponse);
         }
+    }
+
+    private void verificarFalha(AppResponse<?> appResponse, String mensagemErro) {
+        assertEquals(AppStatusEnum.ERRO, appResponse.status());
+        assertEquals(mensagemErro, appResponse.messageErro());
+        assertNull(appResponse.resposta());
+    }
+
+    private void verificarSucesso(AppResponse<?> appResponse) {
+        assertEquals(AppStatusEnum.SUCESSO, appResponse.status());
+        assertNull(appResponse.messageErro());
+        assertNotNull(appResponse.resposta());
     }
 }

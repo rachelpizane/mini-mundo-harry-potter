@@ -8,6 +8,7 @@ import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.service.BruxoService;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class BruxoControllerImpl implements BruxoController {
     private final BruxoService service;
@@ -18,42 +19,28 @@ public class BruxoControllerImpl implements BruxoController {
 
     @Override
     public AppResponse<BruxoResponseDTO> criarBruxo(BruxoRequestDTO bruxoRequest) {
-        try {
-            BruxoResponseDTO response = service.criarBruxo(bruxoRequest);
-            return new AppResponse<>(AppStatusEnum.SUCESSO, response, null);
-
-        } catch (Exception e) {
-            return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
-        }
+        return executarChamadaComTratamento(() -> service.criarBruxo(bruxoRequest));
     }
 
     @Override
     public AppResponse<String> buscarDetalhesBruxo(Long id) {
-        try {
-            String detalhes = service.buscarDetalhesBruxo(id);
-            return new AppResponse<>(AppStatusEnum.SUCESSO, detalhes, null);
-
-        } catch (Exception e) {
-            return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
-        }
+        return executarChamadaComTratamento(() -> service.buscarDetalhesBruxo(id));
     }
 
     @Override
     public AppResponse<String> realizarMagia(Long id) {
-        try {
-            String magia = service.realizarMagia(id);
-            return new AppResponse<>(AppStatusEnum.SUCESSO, magia, null);
-
-        } catch (Exception e) {
-            return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());
-        }
+        return executarChamadaComTratamento(() -> service.realizarMagia(id));
     }
 
     @Override
     public AppResponse<List<BruxoResumeDTO>> buscarBruxos() {
+        return executarChamadaComTratamento(service::buscarBruxos);
+    }
+
+    private <T> AppResponse<T> executarChamadaComTratamento(Supplier<T> acao) {
         try {
-            List<BruxoResumeDTO> bruxos = service.buscarBruxos();
-            return new AppResponse<>(AppStatusEnum.SUCESSO, bruxos, null);
+            T resultado = acao.get();
+            return new AppResponse<>(AppStatusEnum.SUCESSO, resultado, null);
 
         } catch (Exception e) {
             return new AppResponse<>(AppStatusEnum.ERRO, null, e.getMessage());

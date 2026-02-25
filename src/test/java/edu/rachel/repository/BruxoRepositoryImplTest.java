@@ -1,9 +1,10 @@
 package edu.rachel.repository;
 
+import edu.rachel.dto.BruxoRequestDTO;
+import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.exception.NotFoundException;
+import edu.rachel.factory.BruxoFactory;
 import edu.rachel.model.Bruxo;
-import edu.rachel.model.BruxoGrifinoria;
-import edu.rachel.model.BruxoSonserina;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class BruxoRepositoryImplTest {
+
     @InjectMocks
     BruxoRepositoryImpl repository;
 
@@ -30,16 +32,15 @@ class BruxoRepositoryImplTest {
 
         @Test
         void deveSalvarBruxoCorretamente() {
-            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
-            Bruxo bruxoSalvo = repository.save(bruxo);
+            Bruxo bruxoSalvo = repository.save(construirBruxoPadrao());
 
             assertEquals(1L, bruxoSalvo.getId());
         }
 
         @Test
         void deveIncrementarIdAoSalvarProximoBruxo() {
-            Bruxo bruxoGrifinoria = new BruxoGrifinoria("Bruxo");
-            Bruxo bruxoSonserina = new BruxoSonserina("Bruxo2");
+            Bruxo bruxoGrifinoria = construirBruxoPadrao();
+            Bruxo bruxoSonserina = construirBruxo("Bruxo", CasaBruxoEnum.SONSERINA);
 
             Bruxo bruxoGrifinoriaSalvo = repository.save(bruxoGrifinoria);
             Bruxo bruxoSonserinaSalvo = repository.save(bruxoSonserina);
@@ -53,9 +54,7 @@ class BruxoRepositoryImplTest {
     class BuscarPorIdTests {
         @Test
         void deveBuscarPorIdCorretamentoQuandoIdValido(){
-            Bruxo bruxoGrifinoria = new BruxoGrifinoria("Bruxo");
-            Bruxo bruxoGrifinoriaSalvo = repository.save(bruxoGrifinoria);
-
+            Bruxo bruxoGrifinoriaSalvo = repository.save(construirBruxoPadrao());
             Bruxo bruxoBuscado = repository.buscarPorId(bruxoGrifinoriaSalvo.getId());
 
             assertNotNull(bruxoBuscado);
@@ -73,8 +72,7 @@ class BruxoRepositoryImplTest {
     class BuscarTodosTests {
         @Test
         void deveBuscarTodosCorretamente(){
-            Bruxo bruxoGrifinoria = new BruxoGrifinoria("Bruxo");
-            repository.save(bruxoGrifinoria);
+            repository.save(construirBruxoPadrao());
 
             List<Bruxo> bruxos = repository.buscarTodos();
             assertEquals(1, bruxos.size());
@@ -85,5 +83,13 @@ class BruxoRepositoryImplTest {
             List<Bruxo> bruxos = repository.buscarTodos();
             assertEquals(0, bruxos.size());
         }
+    }
+
+    public Bruxo construirBruxoPadrao(){
+        return construirBruxo("Bruxo", CasaBruxoEnum.GRIFINORIA);
+    }
+
+    public Bruxo construirBruxo(String nome, CasaBruxoEnum casa ){
+        return BruxoFactory.create(new BruxoRequestDTO(nome, casa));
     }
 }

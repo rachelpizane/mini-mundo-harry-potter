@@ -6,9 +6,9 @@ import edu.rachel.dto.BruxoResumeDTO;
 import edu.rachel.enums.CasaBruxoEnum;
 import edu.rachel.enums.TipoMagiaEnum;
 import edu.rachel.exception.NotFoundException;
+import edu.rachel.factory.BruxoFactory;
 import edu.rachel.mapper.BruxoMapperImpl;
 import edu.rachel.model.Bruxo;
-import edu.rachel.model.BruxoGrifinoria;
 import edu.rachel.repository.BruxoRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,9 +43,8 @@ class BruxoServiceImplTest {
     class CadastroBruxoTests {
         @Test
         void deveSalvarBruxoCorretamenteQuandoRequestValido() {
-            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
-            Bruxo bruxo = new BruxoGrifinoria(request.nome());
-            bruxo.setId(1L);
+            BruxoRequestDTO request = construirBruxoRequestDTO("Bruxo", CasaBruxoEnum.GRIFINORIA);
+            Bruxo bruxo = construirBruxo(request.nome(), request.casa());
 
             when(repository.save(any(Bruxo.class))).thenReturn(bruxo);
 
@@ -72,7 +71,7 @@ class BruxoServiceImplTest {
         @ParameterizedTest
         @EmptySource
         void deveFalharAoCadastrarBruxoQuandoNomeInvalido(String nome) {
-            BruxoRequestDTO request = new BruxoRequestDTO(nome, CasaBruxoEnum.GRIFINORIA);
+            BruxoRequestDTO request = construirBruxoRequestDTO(nome, CasaBruxoEnum.GRIFINORIA);
 
             assertThrows(IllegalArgumentException.class, () -> {
                 service.criarBruxo(request);
@@ -83,7 +82,7 @@ class BruxoServiceImplTest {
 
         @Test
         void deveFalharAoCadastrarBruxoQuandoCasaBruxoForNula() {
-            BruxoRequestDTO request = new BruxoRequestDTO("Bruxo", null);
+            BruxoRequestDTO request = construirBruxoRequestDTO("Bruxo", null);
 
             assertThrows(IllegalArgumentException.class, () -> {
                 service.criarBruxo(request);
@@ -97,8 +96,7 @@ class BruxoServiceImplTest {
     class DetalhesBruxoTests {
         @Test
         void deveBuscarDetalhesCorretamenteQuandoIdValido(){
-            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
-            bruxo.setId(1L);
+            Bruxo bruxo = construirBruxoPadrao();
 
             when(repository.buscarPorId(bruxo.getId())).thenReturn(bruxo);
 
@@ -123,8 +121,7 @@ class BruxoServiceImplTest {
     class RealizarMagiaTests {
         @Test
         void deveRealizarMagiaCorretamenteQuandoIdValido(){
-            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
-            bruxo.setId(1L);
+            Bruxo bruxo = construirBruxoPadrao();
 
             when(repository.buscarPorId(bruxo.getId())).thenReturn(bruxo);
 
@@ -149,10 +146,7 @@ class BruxoServiceImplTest {
     class BuscarBruxosTests {
         @Test
         void deveBuscarBruxosCorretamente(){
-            Bruxo bruxo = new BruxoGrifinoria("Bruxo");
-            bruxo.setId(1L);
-
-            when(repository.buscarTodos()).thenReturn(List.of(bruxo));
+            when(repository.buscarTodos()).thenReturn(List.of(construirBruxoPadrao()));
 
             List<BruxoResumeDTO> bruxos = service.buscarBruxos();
 
@@ -167,5 +161,20 @@ class BruxoServiceImplTest {
 
             assertEquals(0, bruxos.size());
         }
+    }
+
+    public BruxoRequestDTO construirBruxoRequestDTO(String nome, CasaBruxoEnum casa){
+        return new BruxoRequestDTO(nome, casa);
+    }
+
+    public Bruxo construirBruxoPadrao(){
+        return construirBruxo("Bruxo", CasaBruxoEnum.GRIFINORIA);
+    }
+
+    public Bruxo construirBruxo(String nome, CasaBruxoEnum casa){
+        Bruxo bruxo = BruxoFactory.create(construirBruxoRequestDTO(nome, casa));
+        bruxo.setId(1L);
+
+        return bruxo;
     }
 }
