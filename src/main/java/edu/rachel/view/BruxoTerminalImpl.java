@@ -6,27 +6,26 @@ import edu.rachel.dto.AppResponse;
 import edu.rachel.dto.BruxoRequestDTO;
 import edu.rachel.dto.BruxoResponseDTO;
 import edu.rachel.dto.BruxoResumeDTO;
-import edu.rachel.enums.AppStatusEnum;
 import edu.rachel.enums.CasaBruxoEnum;
+import edu.rachel.helper.TerminalHelper;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class BruxoTerminalImpl implements BruxoTerminal {
-    Scanner scanner;
+    TerminalHelper terminalHelper;
     BruxoController controller;
 
-    public BruxoTerminalImpl(Scanner scanner, BruxoController controller){
-        this.scanner = scanner;
+    public BruxoTerminalImpl(TerminalHelper terminalHelper, BruxoController controller){
         this.controller = controller;
+        this.terminalHelper = terminalHelper;
     }
 
     @Override
     public void executar(){
         exibirCabecalhoPrincipal();
-        exibirMensagem(TerminalConstants.INTRODUCAO);
+        terminalHelper.exibirMensagem(TerminalConstants.INTRODUCAO);
 
         exibirMenuPrincipal();
         sair();
@@ -56,7 +55,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                     rodando = false;
                     break;
                 default:
-                    exibirMensagem(alertarTexto(TerminalConstants.OPCAO_INVALIDA));
+                    terminalHelper.exibirMensagemAlerta(TerminalConstants.OPCAO_INVALIDA);
             }
         }
     }
@@ -69,7 +68,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
     private void exibirCadastroBruxo() {
         exibirCabecalho(TerminalConstants.TITULO_CADASTRO);
 
-        String nomeBruxo = lerEntrada(TerminalConstants.CADASTRO_NOME);
+        String nomeBruxo = terminalHelper.lerEntrada(TerminalConstants.CADASTRO_NOME);
 
         CasaBruxoEnum casaBruxo = definirCasaBruxo();
 
@@ -94,7 +93,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
     public void buscarBruxos(){
         AppResponse<List<BruxoResumeDTO>> response = controller.buscarBruxos();
 
-        if(exibirFalha(response)) return;
+        if(terminalHelper.exibirFalhaSeErro(response)) return;
 
         List<BruxoResumeDTO> bruxos = response.resposta();
 
@@ -104,7 +103,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
     public void cadastrarBruxo(BruxoRequestDTO bruxoRequest){
         AppResponse<BruxoResponseDTO> response = controller.criarBruxo(bruxoRequest);
 
-        if(exibirFalha(response)) return;
+        if(terminalHelper.exibirFalhaSeErro(response)) return;
 
         BruxoResponseDTO bruxoSalvo = response.resposta();
         exibirCadastroSucesso(bruxoSalvo);
@@ -113,28 +112,28 @@ public class BruxoTerminalImpl implements BruxoTerminal {
     public void buscarDetalhesBruxo(Long id){
         AppResponse<String> response = controller.buscarDetalhesBruxo(id);
 
-        if(exibirFalha(response)) return;
+        if(terminalHelper.exibirFalhaSeErro(response)) return;
 
         String detalhes = response.resposta();
 
         exibirCabecalho(TerminalConstants.TITULO_DETALHES);
-        exibirMensagemSemQuebraDeLinha(detalhes);
+        terminalHelper.exibirMensagemSemQuebraLinha(detalhes);
     }
 
     public void realizarFeitico(Long id){
         AppResponse<String> response = controller.realizarMagia(id);
 
-        if(exibirFalha(response)) return;
+        if(terminalHelper.exibirFalhaSeErro(response)) return;
 
         String feitico = response.resposta();
 
         exibirCabecalho(TerminalConstants.TITULO_FEITICO);
-        exibirMensagem(feitico);
+        terminalHelper.exibirMensagem(feitico);
     }
 
     private void sair(){
-        exibirMensagem(System.lineSeparator() + TerminalConstants.ENCERRAMENTO);
-        scanner.close();
+        terminalHelper.exibirMensagem(System.lineSeparator() + TerminalConstants.ENCERRAMENTO);
+        terminalHelper.finalizarTerminal();
     }
 
     private void exibirCabecalhoPrincipal(){
@@ -145,7 +144,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 =================================================
                 """;
 
-        exibirMensagem(cabecalhoPrincipal);
+        terminalHelper.exibirMensagem(cabecalhoPrincipal);
     }
 
     private void exibirCabecalho(String titulo){
@@ -156,7 +155,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 ------------------------------------------------
                 """,titulo.toUpperCase());
 
-        exibirMensagemSemQuebraDeLinha(cabecalho);
+        terminalHelper.exibirMensagemSemQuebraLinha(cabecalho);
     }
 
     private String escolherOpcaoMenuPrincipal(){
@@ -175,8 +174,8 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_FEITICO,
                 TerminalConstants.MENU_PRINCIPAL_OPCAO_SAIR);
 
-        exibirMensagemSemQuebraDeLinha(opcoes);
-        return lerEntrada(TerminalConstants.MENU_PRINCIPAL_DESCRICAO);
+        terminalHelper.exibirMensagemSemQuebraLinha(opcoes);
+        return terminalHelper.lerEntrada(TerminalConstants.MENU_PRINCIPAL_DESCRICAO);
     }
 
     private CasaBruxoEnum definirCasaBruxo(){
@@ -189,7 +188,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 case "2":
                     return CasaBruxoEnum.SONSERINA;
                 default:
-                    exibirMensagem(alertarTexto(TerminalConstants.OPCAO_INVALIDA + System.lineSeparator()));
+                    terminalHelper.exibirMensagemAlerta(TerminalConstants.OPCAO_INVALIDA + System.lineSeparator());
             }
 
         }
@@ -205,28 +204,20 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 TerminalConstants.CADASTRO_CASA_OPCAO_SONSERINA
         );
 
-        exibirMensagem(TerminalConstants.CADASTRO_CASA_DESCRICAO);
-        exibirMensagemSemQuebraDeLinha(opcoes);
-        return lerEntrada(TerminalConstants.CADASTRO_CASA);
+        terminalHelper.exibirMensagem(TerminalConstants.CADASTRO_CASA_DESCRICAO);
+        terminalHelper.exibirMensagemSemQuebraLinha(opcoes);
+        return terminalHelper.lerEntrada(TerminalConstants.CADASTRO_CASA);
     }
 
     public Long capturarId(){
-        String idStr = lerEntrada(TerminalConstants.PERGUNTA_DETALHES_ID);
-
-        Long id;
-        try {
-            id = Long.parseLong(idStr);
-        } catch (NumberFormatException e) {
-            exibirMensagem(alertarTexto(TerminalConstants.ID_INVALIDO));
-            return null;
-        }
-
-        return id;
+        return terminalHelper.capturarLong(
+                TerminalConstants.PERGUNTA_DETALHES_ID,
+                TerminalConstants.ID_INVALIDO);
     }
 
     public void exibirBruxos(List<BruxoResumeDTO> bruxos){
         if(bruxos.isEmpty()){
-            exibirMensagem(TerminalConstants.SEM_BRUXOS);
+            terminalHelper.exibirMensagem(TerminalConstants.SEM_BRUXOS);
             return;
         }
 
@@ -234,7 +225,7 @@ public class BruxoTerminalImpl implements BruxoTerminal {
                 .map(bruxo -> String.format("ID: %d - NOME: %s", bruxo.id(), bruxo.nome()))
                 .collect(Collectors.joining(System.lineSeparator()));
 
-        exibirMensagem(listaBruxos);
+        terminalHelper.exibirMensagem(listaBruxos);
     }
 
     public void exibirCadastroSucesso(BruxoResponseDTO bruxoSalvo) {
@@ -246,32 +237,6 @@ public class BruxoTerminalImpl implements BruxoTerminal {
         );
 
         exibirCabecalho(TerminalConstants.TITULO_CADASTRO_CONCLUIDO);
-        exibirMensagemSemQuebraDeLinha(dadosBruxo);
-    }
-
-    public boolean exibirFalha(AppResponse<?> response){
-        if(response.status().equals(AppStatusEnum.ERRO)) {
-            exibirMensagem(alertarTexto("[FALHA] " + response.messageErro()));
-            return true;
-        }
-
-        return false;
-    }
-
-    public String lerEntrada(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine();
-    }
-
-    public void exibirMensagemSemQuebraDeLinha(String texto){
-        System.out.print(texto);
-    }
-
-    public void exibirMensagem(String texto){
-        System.out.println(texto);
-    }
-
-    public String alertarTexto(String texto) {
-        return TerminalConstants.ANSI_RED + texto + TerminalConstants.ANSI_RESET;
+        terminalHelper.exibirMensagemSemQuebraLinha(dadosBruxo);
     }
 }
