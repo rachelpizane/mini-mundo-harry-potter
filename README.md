@@ -4,7 +4,7 @@
 Este é um pequeno sistema desenvolvido em Java que simula um mini mundo inspirado no universo de Harry Potter. A aplicação permite cadastrar bruxos, exibir suas informações, lançar feitiços e listar todos os bruxos cadastrados.
 
 ## 📣 Objetivos e decisões
-O principal objetivo do projeto foi exercitar os conceitos fundamentais de Programação Orientada a Objetos (POO) — como abstração, encapsulamento, herança e polimorfismo — além de aplicar uma organização em camadas utilizando os padrões MVC e DTO para separação de responsabilidades.
+O principal objetivo do projeto foi exercitar os conceitos fundamentais de Programação Orientada a Objetos (POO), como abstração, encapsulamento, herança e polimorfismo, além de aplicar uma organização em camadas utilizando os padrões MVC e DTO para separação de responsabilidades.
 
 O projeto foi desenvolvido em Java puro com o intuito de aprofundar os princípios SOLID, especialmente o princípio da Inversão de Dependência. Toda a criação e integração dos objetos foi realizada manualmente, simulando o que frameworks como o Spring fazem automaticamente por meio de injeção de dependências.
 
